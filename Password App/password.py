@@ -1,44 +1,81 @@
-###set font of display of password and website link
-
-###create buttons for direct copy and paste of credentials
+#add username verification(blank user name not allowed and unique user name shud be der) in case of new user regestration
+#edit password not working
 
 import wx
-class main(wx.Frame):
-
-    def __init__(self,parent,title):
-        wx.Frame.__init__(self,parent,title = title,size= (350,100))
-        panel = wx.Panel(self,-1)
-
-        sizer1 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.b1 = wx.Button(panel,1,"Save password")
-        self.b2 = wx.Button(panel,1,"Retrieve password")
-        self.b3 = wx.Button(panel,1,"Exit")
-
-        sizer1.Add(self.b1,1,wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND,wx.ALL)
-        sizer1.Add(self.b2,1,wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND,wx.ALL)
-        sizer1.Add(self.b3,1,wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND,wx.ALL)
-
-        
-        self.b1.Bind(wx.EVT_BUTTON,self.savenewpassword)        
-        self.b2.Bind(wx.EVT_BUTTON,self.reviewpassword)
-        self.b3.Bind(wx.EVT_BUTTON,self.quit)
-
-        panel.SetSizer(sizer1)
-        self.Centre()
-        self.Show()
-
-    def savenewpassword(self,e):
-        a = npass(None,"Save your password")
-        
-    def reviewpassword(self,e):
-        a = rpass(None,"Review your saved passwords")
-        
-    def quit(self,e):
-        self.Close()
+from pyDes import *
+       
+#########################################################################################################################################################################
+class filehandling():
+    def userinfo(self):
+        f = open('C:\Users\DJ\Documents\pss.txt','r')
+        username_list,usernumber_list,t = [],[],[]
+        for l in f:
+            temp = str.split(str(l),'\t')
+            if temp[1] == 'Username' and temp[0] == '#u' :
+                username_list.append(str(temp[2]))
+                usernumber_list.append(str(temp[3]))
+        t.append(username_list)
+        t.append(usernumber_list)
+        return t
+    def save_new_user(self,x,y):
+        f = open('C:\Users\DJ\Documents\pss.txt','a')
+        f.write('#u')
+        f.write('\t')
+        f.write("Username")
+        f.write('\t')
+        f.write(str(x))
+        f.write('\t')
+        f.write(str(y))
+        f.write('\t')
+        i = self.user_count()
+        f.write(str(i))
+        f.write('\t')
+        f.write('\n')
+        f.close()
+        return
+    def user_count(self):
+        f = open('C:\Users\DJ\Documents\pss.txt','r')
+        c = 1
+        for l in f:
+            t = str.split(l,'\t')
+            if t[1] == 'Username':
+                c+=1
+        return c
+    def save_new_password(self,w,x,y,z):
+        f = open('C:\Users\DJ\Documents\pss.txt','a')
+        f.write(str(w))
+        f.write('\t')
+        f.write(str(x))
+        f.write('\t')
+        f.write(str(y))
+        f.write('\t')
+        f.write(str(z))
+        f.write('\n')
+        f.close()
+    def dropdown_options_in_rpass(self,user):
+        f = open('C:\Users\DJ\Documents\pss.txt','r')
+        string = []
+        for l in f:
+            temp = str.split(str(l),'\t')
+            if str(temp[0]) == str(user):
+                string.append(temp[1])
+        f.close()
+        return string
+    def show_saved_password(self,s,user):
+        f = open('C:\Users\DJ\Documents\pss.txt','r')
+        t = []
+        for l in f:
+            temp = str.split(str(l),'\t')
+            if temp[1] == s and temp[0] == str(user):
+                t.append(temp[2])
+                t.append(temp[3])
+                f.close()
+                return t;
+        f.close()
+#########################################################################################################################################################################
 
 class authentication(wx.Frame):
-    def __init__(self,parent,title):
+    def __init__(self,parent,title,b):
         wx.Frame.__init__(self,parent,title = title)
         panel = wx.Panel(self,-1)
         
@@ -49,12 +86,12 @@ class authentication(wx.Frame):
         hsizer3 = wx.BoxSizer(wx.HORIZONTAL)
         hsizer_b = wx.BoxSizer(wx.HORIZONTAL)
         
-        st1 = wx.StaticText(panel,-1,"Enter your Name \n(First + Last name) :")
+        st1 = wx.StaticText(panel,-1,"Enter your Name :\n(First + Last name) ")
         self.sb1 = wx.TextCtrl(panel,-1)
         hsizer1.Add(st1,1,wx.RIGHT|wx.ALIGN_CENTER_HORIZONTAL,10)
         hsizer1.Add(self.sb1,2,0,0)
-
-        st2 = wx.StaticText(panel,-1,"Enter the phone number \n(with which u registered the account) :")
+        
+        st2 = wx.StaticText(panel,-1,"Enter the phone number : \n(with which u registered the account) ")
         self.sb2 = wx.TextCtrl(panel,-1)
         hsizer2.Add(st2,1,wx.RIGHT|wx.ALIGN_CENTER_HORIZONTAL,0)
         hsizer2.Add(self.sb2,2,0,0)
@@ -70,33 +107,31 @@ class authentication(wx.Frame):
         hsizer_b.Add(self.b2,0,wx.ALIGN_CENTER_HORIZONTAL,0)
         hsizer_b.Add(self.b3,0,wx.ALIGN_CENTER_HORIZONTAL,0)
         
-        vsizer.Add(hsizer1,2,wx.ALIGN_CENTER_HORIZONTAL,0)
+        vsizer.Add(hsizer1,2,wx.ALIGN_CENTER_HORIZONTAL|wx.UP,10)
         vsizer.Add(hsizer2,2,wx.ALIGN_CENTER_HORIZONTAL,0)
         vsizer.Add(hsizer_b,2,wx.ALIGN_CENTER_HORIZONTAL|wx.UP,10)
 
+        self.current_user_name = ''
         self.current_user = 0
+        self.username_list,self.usernumber_list = [],[]
         panel.SetSizer(vsizer)
         self.Centre()
-        self.Show()
+        self.Show(b)
         
     def login(self,e):
         self.userinfo()
         i = self.user_match()
         if i == 1:
-            t = main(None,"Welcome " + self.username_list[self.current_user])
+            t = main(None,"Welcome " + self.username_list[self.current_user],self.current_user_name,self.current_user)
             self.quit(e)
         else:
             self.st1 = wx.StaticText(self,-1,"Either of your credentials are wrong\n Kindly make changes and retry with login",(80,115),style = wx.ALIGN_CENTRE)
             
     def userinfo(self):
-        f = open('C:\Users\DJ\Documents\pss.txt','r')
-        self.username_list,self.usernumber_list = [],[]
-        for l in f:
-            temp = str.split(str(l),'\t')
-            if temp[0] == 'Username':
-                self.username_list.append(str(temp[1]))
-                self.usernumber_list.append(str(temp[2]))
-                
+        x = filehandling()
+        t = x.userinfo()
+        self.username_list = t[0]
+        self.usernumber_list =t[1]       
     
     def user_match(self):
         temp1 = str(self.sb1.GetValue())
@@ -105,6 +140,7 @@ class authentication(wx.Frame):
         while i<len(self.username_list):
             if temp1 == str(self.username_list[i]) and temp2 == str(self.usernumber_list[i]):
                 self.current_user = i
+                self.current_user_name = str(self.username_list[i])
                 return 1;
             i+=1
         return 0
@@ -122,6 +158,71 @@ class authentication(wx.Frame):
         vsizer.Add(self.sb3,2,0,0)
 """
 ##########################################################################################################################################################################
+class main(wx.Frame):
+
+    def __init__(self,parent,title,user,identity):
+        wx.Frame.__init__(self,parent,title = title,size= (466,100))
+        panel = wx.Panel(self,-1)
+
+        sizer1 = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.b1 = wx.Button(panel,1,"Save password")
+        self.b2 = wx.Button(panel,1,"Retrieve password")
+        self.b3 = wx.Button(panel,1,"Edit password")
+        self.b4 = wx.Button(panel,1,"Exit")
+
+        sizer1.Add(self.b1,1,wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND,wx.ALL)
+        sizer1.Add(self.b2,1,wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND,wx.ALL)
+        sizer1.Add(self.b3,1,wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND,wx.ALL)
+        sizer1.Add(self.b4,1,wx.ALIGN_CENTER_HORIZONTAL|wx.EXPAND,wx.ALL)
+        
+        self.b1.Bind(wx.EVT_BUTTON,self.savenewpassword)        
+        self.b2.Bind(wx.EVT_BUTTON,self.reviewpassword)
+        self.b3.Bind(wx.EVT_BUTTON,self.editpassword)
+        self.b4.Bind(wx.EVT_BUTTON,self.quit)
+
+        self.current_user_name = user
+        self.current_user = identity 
+        panel.SetSizer(sizer1)
+        self.Centre()
+        self.Show()
+        
+    def savenewpassword(self,e):
+        a = npass(None,"Save your password",self.current_user_name ,self.current_user + 1)
+        
+    def reviewpassword(self,e):
+        a = rpass(None,"Review your saved passwords",self.current_user_name ,self.current_user + 1)
+
+    def editpassword(self,e):
+        a = editpass(None,"Edit your credentials",self.current_user_name ,self.current_user + 1)
+        
+    def quit(self,e):
+        self.Close()
+
+##########################################################################################################################################################################
+class cryptography():
+    def __init__(self,t):
+        self.k = des("RATNANEO", CBC, "\1\0\0\0\0\0\0\0", pad=None, padmode=PAD_PKCS5)
+        f = open('C:\Users\DJ\Documents\pss.txt','r+')
+        self.data = f.read()
+        f.close()
+
+        if t == 'e':
+            self.encryptdata()
+        elif t == 'd':
+            self.decryptdata()
+    def encryptdata(self):
+        x = self.k.encrypt(self.data)
+        f = open('C:\Users\DJ\Documents\pss.txt','r+')
+        f.write(x)
+        f.close()
+    def decryptdata(self):
+        x = self.k.decrypt(self.data)
+        f = open('C:\Users\DJ\Documents\pss.txt','r+')
+        f.write(x)
+        f.close()
+##########################################################################################################################################################################
+
 class user_regestration(wx.Frame):
     def __init__(self,parent,title):
         wx.Frame.__init__(self,parent,title = title)
@@ -161,24 +262,99 @@ class user_regestration(wx.Frame):
         self.Show()
 
     def save(self,e):
-        f = open('C:\Users\DJ\Documents\pss.txt','a')
-        f.write("Username")
-        f.write('\t')
-        f.write(str(self.sb1.GetValue()))
-        f.write('\t')
-        f.write(str(self.sb2.GetValue()))
-        f.write('\t')
-        f.write('\n')
-        f.close()
-        self.Close()
-             
+        #temp = crytography('')
+        x = filehandling()
+        x.save_new_user(self.sb1.GetValue(),self.sb2.GetValue())
+        self.Close()     
     def quit(self,e):
         self.Close()
 
 ##########################################################################################################################################################################
 
+class editpass(wx.Frame):
+    def __init__(self,parent,title,user,identity):
+        wx.Frame.__init__(self,parent,title = title)
+        panel = wx.Panel(self,-1)
+
+        vsizer1 = wx.BoxSizer(wx.VERTICAL)
+        hsizer1 = wx.BoxSizer(wx.HORIZONTAL)
+        hsizer2 = wx.BoxSizer(wx.HORIZONTAL)
+        hsizer3 = wx.BoxSizer(wx.HORIZONTAL)
+        hsizer4 = wx.BoxSizer(wx.HORIZONTAL)
+        
+        self.user = user
+        self.identity = identity
+        
+        #stt1 = wx.StaticText(panel,-1,"Select the alias you saved")
+
+        x=filehandling()
+        string = x.dropdown_options_in_rpass(self.user)
+
+        self.cb = wx.ComboBox(panel,-1,'Select the alias with which you saved your data',size = (290,-1),choices = string, style = wx.CB_DROPDOWN)  
+        self.cb.Bind(wx.EVT_COMBOBOX,self.show)
+        self.stt2 = wx.StaticText(panel,-1,"Your username will appear here")
+        
+        st1 = wx.StaticText(panel,-1,"Enter the previous password : :")
+        self.sb1 = wx.TextCtrl(panel,-1)
+        hsizer1.Add(st1,1,wx.RIGHT,10)
+        hsizer1.Add(self.sb1,2,0,0)
+
+        st2 = wx.StaticText(panel,-1,"Enter the new password :")
+        self.sb2 = wx.TextCtrl(panel,-1)
+        hsizer2.Add(st2,1,wx.RIGHT,15)
+        hsizer2.Add(self.sb2,2,0,0)
+
+        st3 = wx.StaticText(panel,-1,"Re-enter the new password :")
+        self.sb3 = wx.TextCtrl(panel,-1)
+        hsizer3.Add(st3,1,wx.RIGHT,70)
+        hsizer3.Add(self.sb3,2,0,0)
+        
+        self.b2= wx.Button(panel,1,"Update password")
+        self.b3 = wx.Button(panel,1,"Exit without saving")
+        hsizer4.Add(self.b2,1,wx.ALIGN_CENTER_HORIZONTAL,0)
+        hsizer4.Add(self.b3,1,wx.ALIGN_CENTER_HORIZONTAL,0)
+        
+        self.b2.Bind(wx.EVT_BUTTON,self.update)
+        self.b3.Bind(wx.EVT_BUTTON,self.quit)
+        
+        vsizer1.Add(self.cb,0,wx.DOWN|wx.ALIGN_CENTER_HORIZONTAL,5)
+        vsizer1.Add(self.stt2,0,wx.DOWN|wx.ALIGN_CENTER_HORIZONTAL,15)
+        vsizer1.Add(hsizer1,0,wx.DOWN,15)
+        vsizer1.Add(hsizer2,0,wx.DOWN,15)
+        vsizer1.Add(hsizer3,0,wx.DOWN,15)
+        vsizer1.Add(hsizer4,0,wx.ALIGN_CENTER_HORIZONTAL,0)
+        
+        self.user = user
+        self.identity = identity
+        
+        panel.SetSizer(vsizer1)
+        self.Centre()
+        self.Show()
+        
+    def show(self,e):
+        s = (self.cb.GetValue())
+        x = filehandling()
+        temp = x.show_saved_password(s,self.user)
+        font = wx.Font(15,wx.ROMAN,wx.NORMAL,weight = wx.BOLD)
+        self.stt2.SetLabel(str(temp[0]))
+        self.stt2.SetFont(font)
+        
+    def update(self,e):
+        s = (self.cb.GetValue())
+        if self.sb3.GetValue()==self.sb2.GetValue():
+            x = filehandling()
+            temp = x.show_saved_password(s,self.user)
+            x.save_new_password(self.user,str(temp[1]),str(temp[2]),str(temp[3]))
+        else:
+            print 'error'
+                
+    def quit(self,e):
+            self.Close()
+
+##########################################################################################################################################################################
+
 class npass(wx.Frame):
-    def __init__(self,parent,title):
+    def __init__(self,parent,title,user,identity):
         wx.Frame.__init__(self,parent,title = title)
         panel = wx.Panel(self,-1)
 
@@ -219,22 +395,18 @@ class npass(wx.Frame):
         vsizer1.Add(hsizer3,0,wx.DOWN,15)
         vsizer1.Add(hsizer4,0,wx.LEFT|wx.RIGHT,50)
         
+        self.user = user
+        self.identity = identity
+        
         panel.SetSizer(vsizer1)
         self.Centre()
         self.Show()
 
     def save(self,e):
-        f = open('C:\Users\DJ\Documents\pss.txt','a')
-        f.write(str(self.sb1.GetValue()))
-        f.write('\t')
-        f.write(str(self.sb2.GetValue()))
-        f.write('\t')
-        f.write(str(self.sb3.GetValue()))
-        f.write('\n')
-        f.close()
+        x = filehandling()
+        x.save_new_password(self.user,self.sb1.GetValue(),self.sb2.GetValue(),self.sb3.GetValue())
         self.Close()
                 
-        
     def quit(self,e):
             self.Close()
 
@@ -242,16 +414,15 @@ class npass(wx.Frame):
 
 class rpass(wx.Frame):
 
-    def __init__(self,parent,title):
+    def __init__(self,parent,title,user,identity):
         wx.Frame.__init__(self,parent,title = title)
         panel = wx.Panel(self,-1)
-        f = open('C:\Users\DJ\Documents\pss.txt','r')
-        string = []
-        for l in f:
-            temp = str.split(str(l),'\t')
-            if str(temp[0]) != 'Username':
-                string.append(temp[0])
-        f.close()
+
+        self.user = user
+        self.identity = identity
+
+        x=filehandling()
+        string = x.dropdown_options_in_rpass(self.user)
 
         vsizer = wx.BoxSizer(wx.VERTICAL)
         
@@ -269,7 +440,7 @@ class rpass(wx.Frame):
         hsizer.Add(self.b1,1,wx.LEFT|wx.RIGHT,10)
         hsizer.Add(self.b2,1,wx.LEFT|wx.RIGHT,10)
                               
-        vsizer.Add(self.cb,0,wx.DOWN,15)
+        vsizer.Add(self.cb,0,wx.DOWN|wx.UP|wx.ALIGN_CENTER_HORIZONTAL,15,25)
         vsizer.Add(self.st1,0,wx.UP|wx.ALIGN_CENTER_HORIZONTAL,25)
         vsizer.Add(self.st2,0,wx.UP|wx.ALIGN_CENTER_HORIZONTAL,25)
         vsizer.Add(hsizer,0,wx.ALIGN_CENTER_HORIZONTAL|wx.UP,40)
@@ -280,22 +451,21 @@ class rpass(wx.Frame):
 
     def select(self,e):
         s = (self.cb.GetValue())
-        f = open('C:\Users\DJ\Documents\pss.txt','r')
         font = wx.Font(15,wx.ROMAN,wx.NORMAL,weight = wx.BOLD)
-        for l in f:
-            temp = str.split(str(l),'\t')
-            if temp[0] == s:
-                self.st1.SetLabel(str(temp[1]))
-                self.st1.SetFont(font)
-                self.st2.SetLabel(str(temp[2]))
-                self.st2.SetFont(font)
-                f.close()
-                return;
-        f.close()
+        x = filehandling()
+        temp = x.show_saved_password(s,self.user)
+        self.st1.SetLabel(str(temp[0]))
+        self.st1.SetFont(font)
+        self.st2.SetLabel(str(temp[1]))
+        self.st2.SetFont(font)
+                
+        
     def close(self,e):
             self.Close()
 
 ##########################################################################################################################################################################
+
 app = wx.App()
-aa = authentication(None,"Remeber your passwords with ease")
+aa = authentication(None,"Remeber your passwords with ease",True)
 app.MainLoop()
+
