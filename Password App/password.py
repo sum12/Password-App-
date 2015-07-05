@@ -1,77 +1,12 @@
 #add username verification(blank user name not allowed and unique user name shud be der) in case of new user regestration
 #edit password not working
-
-import wx
+#filter to prevent a earlier existing alias or empty alias
+import wx,filehandlingmod
 from pyDes import *
        
 #########################################################################################################################################################################
-class filehandling():
-    def userinfo(self):
-        f = open('C:\Users\DJ\Documents\pss.txt','r')
-        username_list,usernumber_list,t = [],[],[]
-        for l in f:
-            temp = str.split(str(l),'\t')
-            if temp[1] == 'Username' and temp[0] == '#u' :
-                username_list.append(str(temp[2]))
-                usernumber_list.append(str(temp[3]))
-        t.append(username_list)
-        t.append(usernumber_list)
-        return t
-    def save_new_user(self,x,y):
-        f = open('C:\Users\DJ\Documents\pss.txt','a')
-        f.write('#u')
-        f.write('\t')
-        f.write("Username")
-        f.write('\t')
-        f.write(str(x))
-        f.write('\t')
-        f.write(str(y))
-        f.write('\t')
-        i = self.user_count()
-        f.write(str(i))
-        f.write('\t')
-        f.write('\n')
-        f.close()
-        return
-    def user_count(self):
-        f = open('C:\Users\DJ\Documents\pss.txt','r')
-        c = 1
-        for l in f:
-            t = str.split(l,'\t')
-            if t[1] == 'Username':
-                c+=1
-        return c
-    def save_new_password(self,w,x,y,z):
-        f = open('C:\Users\DJ\Documents\pss.txt','a')
-        f.write(str(w))
-        f.write('\t')
-        f.write(str(x))
-        f.write('\t')
-        f.write(str(y))
-        f.write('\t')
-        f.write(str(z))
-        f.write('\n')
-        f.close()
-    def dropdown_options_in_rpass(self,user):
-        f = open('C:\Users\DJ\Documents\pss.txt','r')
-        string = []
-        for l in f:
-            temp = str.split(str(l),'\t')
-            if str(temp[0]) == str(user):
-                string.append(temp[1])
-        f.close()
-        return string
-    def show_saved_password(self,s,user):
-        f = open('C:\Users\DJ\Documents\pss.txt','r')
-        t = []
-        for l in f:
-            temp = str.split(str(l),'\t')
-            if temp[1] == s and temp[0] == str(user):
-                t.append(temp[2])
-                t.append(temp[3])
-                f.close()
-                return t;
-        f.close()
+
+        
 #########################################################################################################################################################################
 
 class authentication(wx.Frame):
@@ -113,7 +48,8 @@ class authentication(wx.Frame):
 
         self.current_user_name = ''
         self.current_user = 0
-        self.username_list,self.usernumber_list = [],[]
+        self.alluserinfo = []
+        
         panel.SetSizer(vsizer)
         self.Centre()
         self.Show(b)
@@ -122,27 +58,22 @@ class authentication(wx.Frame):
         self.userinfo()
         i = self.user_match()
         if i == 1:
-            t = main(None,"Welcome " + self.username_list[self.current_user],self.current_user_name,self.current_user)
+            t = main(None,"Welcome " + self.alluserinfo[self.current_user][0],self.current_user_name,self.current_user)
             self.quit(e)
         else:
             self.st1 = wx.StaticText(self,-1,"Either of your credentials are wrong\n Kindly make changes and retry with login",(80,115),style = wx.ALIGN_CENTRE)
             
     def userinfo(self):
-        x = filehandling()
+        x = filehandlingmod.filehandling()
         t = x.userinfo()
-        self.username_list = t[0]
-        self.usernumber_list =t[1]       
-    
+        self.alluserinfo = t
     def user_match(self):
-        temp1 = str(self.sb1.GetValue())
-        temp2 = str(self.sb2.GetValue())
-        i = 0
-        while i<len(self.username_list):
-            if temp1 == str(self.username_list[i]) and temp2 == str(self.usernumber_list[i]):
+        t1,t2 = str(self.sb1.GetValue()),str(self.sb2.GetValue())
+        for i in range(len(self.alluserinfo)):
+            if t1 == str(self.alluserinfo[i][0]) and t2 == str(self.alluserinfo[i][1]):
                 self.current_user = i
-                self.current_user_name = str(self.username_list[i])
+                self.current_user_name = str(self.alluserinfo[i][0])
                 return 1;
-            i+=1
         return 0
                 
     def user_reg(self,e):
@@ -263,7 +194,7 @@ class user_regestration(wx.Frame):
 
     def save(self,e):
         #temp = crytography('')
-        x = filehandling()
+        x = filehandlingmod.filehandling()
         x.save_new_user(self.sb1.GetValue(),self.sb2.GetValue())
         self.Close()     
     def quit(self,e):
@@ -287,7 +218,7 @@ class editpass(wx.Frame):
         
         #stt1 = wx.StaticText(panel,-1,"Select the alias you saved")
 
-        x=filehandling()
+        x=filehandlingmod.filehandling()
         string = x.dropdown_options_in_rpass(self.user)
 
         self.cb = wx.ComboBox(panel,-1,'Select the alias with which you saved your data',size = (290,-1),choices = string, style = wx.CB_DROPDOWN)  
@@ -333,16 +264,16 @@ class editpass(wx.Frame):
         
     def show(self,e):
         s = (self.cb.GetValue())
-        x = filehandling()
-        temp = x.show_saved_password(s,self.user)
+        x = filehandlingmod.filehandling()
+        t = x.show_saved_password(s,self.user)
         font = wx.Font(15,wx.ROMAN,wx.NORMAL,weight = wx.BOLD)
-        self.stt2.SetLabel(str(temp[0]))
+        self.stt2.SetLabel(str(t[0][0]))
         self.stt2.SetFont(font)
         
     def update(self,e):
         s = (self.cb.GetValue())
         if self.sb3.GetValue()==self.sb2.GetValue():
-            x = filehandling()
+            x = filehandlingmod.filehandling()
             temp = x.show_saved_password(s,self.user)
             x.save_new_password(self.user,str(temp[1]),str(temp[2]),str(temp[3]))
         else:
@@ -403,7 +334,7 @@ class npass(wx.Frame):
         self.Show()
 
     def save(self,e):
-        x = filehandling()
+        x = filehandlingmod.filehandling()
         x.save_new_password(self.user,self.sb1.GetValue(),self.sb2.GetValue(),self.sb3.GetValue())
         self.Close()
                 
@@ -421,7 +352,7 @@ class rpass(wx.Frame):
         self.user = user
         self.identity = identity
 
-        x=filehandling()
+        x=filehandlingmod.filehandling()
         string = x.dropdown_options_in_rpass(self.user)
 
         vsizer = wx.BoxSizer(wx.VERTICAL)
@@ -452,11 +383,11 @@ class rpass(wx.Frame):
     def select(self,e):
         s = (self.cb.GetValue())
         font = wx.Font(15,wx.ROMAN,wx.NORMAL,weight = wx.BOLD)
-        x = filehandling()
+        x = filehandlingmod.filehandling()
         temp = x.show_saved_password(s,self.user)
-        self.st1.SetLabel(str(temp[0]))
+        self.st1.SetLabel(str(temp[0][0]))
         self.st1.SetFont(font)
-        self.st2.SetLabel(str(temp[1]))
+        self.st2.SetLabel(str(temp[0][1]))
         self.st2.SetFont(font)
                 
         
