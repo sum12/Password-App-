@@ -29,3 +29,10 @@ class filehandling():
         t = [tuple([str.split(str(l),'\t')[2],str.split(str(l),'\t')[3]]) for l in f if str.split(str(l),'\t')[1] == str(s) and str.split(str(l),'\t')[0] == str(user)]
         f.close()
         return t
+        
+    def username_search(self,x,t):
+        l = self.userinfo()
+        f = [x for term in l if term[t] == x]
+        if len(f)>0:
+            return 1
+        else: return 0

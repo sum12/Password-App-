@@ -1,11 +1,30 @@
-#add username verification(blank user name not allowed and unique user name shud be der) in case of new user regestration
+#
 #edit password not working
 #filter to prevent a earlier existing alias or empty alias
 import wx,filehandlingmod
 from pyDes import *
        
 #########################################################################################################################################################################
-
+class filters():
+    def newuser_filter(self,s,sb1,sb2,x):
+        if sb1 == '' :
+            dlg = wx.MessageDialog(s, 'Username cannot be kept blank', 'Error', wx.OK|wx.ICON_INFORMATION)
+            dlg.ShowModal()
+            dlg.Destroy()
+        elif sb2 == '':
+            dlg = wx.MessageDialog(s, 'Phone number cannot be kept blank', 'Error', wx.OK|wx.ICON_INFORMATION)
+            dlg.ShowModal()
+            dlg.Destroy()
+        elif x.username_search(str(sb1),0)==1:
+            dlg = wx.MessageDialog(s, 'Username already exists in our database \nKindly select a new username', 'Error', wx.OK|wx.ICON_INFORMATION)
+            dlg.ShowModal()
+            dlg.Destroy()
+        elif x.username_search(str(sb2),1)==1:
+            dlg = wx.MessageDialog(s, 'Phone number already registered in our database \nKindly enter another number', 'Error', wx.OK|wx.ICON_INFORMATION)
+            dlg.ShowModal()
+            dlg.Destroy()
+        else : 
+            return 1
         
 #########################################################################################################################################################################
 
@@ -195,8 +214,10 @@ class user_regestration(wx.Frame):
     def save(self,e):
         #temp = crytography('')
         x = filehandlingmod.filehandling()
-        x.save_new_user(self.sb1.GetValue(),self.sb2.GetValue())
-        self.Close()     
+        y = filters()
+        if (y.newuser_filter(self,self.sb1.GetValue(),self.sb2.GetValue(),x)) :
+            x.save_new_user(self.sb1.GetValue(),self.sb2.GetValue())
+            self.Close()     
     def quit(self,e):
         self.Close()
 
@@ -394,6 +415,7 @@ class rpass(wx.Frame):
     def close(self,e):
             self.Close()
 
+##########################################################################################################################################################################
 ##########################################################################################################################################################################
 
 app = wx.App()
