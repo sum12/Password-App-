@@ -194,9 +194,26 @@ class user_regestration(wx.Frame):
 
     def save(self,e):
         #temp = crytography('')
-        x = filehandlingmod.filehandling()
-        x.save_new_user(self.sb1.GetValue(),self.sb2.GetValue())
-        self.Close()     
+        x = x = filehandlingmod.filehandling()
+        if self.sb1.GetValue() == '' :
+            dlg = wx.MessageDialog(self, 'Username cannot be kept blank', 'Error', wx.OK|wx.ICON_INFORMATION)
+            dlg.ShowModal()
+            dlg.Destroy()
+        elif self.sb2.GetValue() == '':
+            dlg = wx.MessageDialog(self, 'Phone number cannot be kept blank', 'Error', wx.OK|wx.ICON_INFORMATION)
+            dlg.ShowModal()
+            dlg.Destroy()
+        elif x.username_search(str(self.sb1.GetValue()),0)==1:
+            dlg = wx.MessageDialog(self, 'Username already exists in our database \nKindly select a new username', 'Error', wx.OK|wx.ICON_INFORMATION)
+            dlg.ShowModal()
+            dlg.Destroy()
+        elif x.username_search(str(self.sb2.GetValue()),1)==1:
+            dlg = wx.MessageDialog(self, 'Phone number already registered in our database \nKindly enter another number', 'Error', wx.OK|wx.ICON_INFORMATION)
+            dlg.ShowModal()
+            dlg.Destroy()
+        else:   
+            x.save_new_user(self.sb1.GetValue(),self.sb2.GetValue())
+            self.Close()     
     def quit(self,e):
         self.Close()
 
@@ -394,6 +411,7 @@ class rpass(wx.Frame):
     def close(self,e):
             self.Close()
 
+##########################################################################################################################################################################
 ##########################################################################################################################################################################
 
 app = wx.App()
