@@ -8,12 +8,19 @@ from pyDes import *
 #########################################################################################################################################################################
 class filters():
     def show_error(*args):
-            dlg = wx.MessageDialog(*args)
-            dlg.ShowModal()
-            dlg.Destroy()
-            return 0
+        # have added this method so you dont have redudancy in your code.
+        # follow DRY (dont Repeat Yourself)
+        dlg = wx.MessageDialog(*args)
+        dlg.ShowModal()
+        dlg.Destroy()
+        return 0
 
     def newuser_filter(self,s,sb1,sb2,x):
+        # there were missing return statements in your code. 
+        # when a function does not return anything expilcitly then its default return value is "None" and
+        # >>> bool(Null) 
+        # False
+        # so that is why your code below was working correctly.
         if sb1 == '' :
             return self.show_error(s, 'Username cannot be kept blank', 'Error', wx.OK|wx.ICON_INFORMATION)
         elif sb2 == '':
