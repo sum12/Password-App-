@@ -1,37 +1,34 @@
 #
 #edit password not working
 #filter to prevent a earlier existing alias or empty alias
-import wx,filehandlingmod
+import wx
+import filehandlingmod
 from pyDes import *
        
 #########################################################################################################################################################################
 class filters():
+    def show_error(*args):
+            dlg = wx.MessageDialog(*args)
+            dlg.ShowModal()
+            dlg.Destroy()
+            return 0
+
     def newuser_filter(self,s,sb1,sb2,x):
         if sb1 == '' :
-            dlg = wx.MessageDialog(s, 'Username cannot be kept blank', 'Error', wx.OK|wx.ICON_INFORMATION)
-            dlg.ShowModal()
-            dlg.Destroy()
+            return self.show_error(s, 'Username cannot be kept blank', 'Error', wx.OK|wx.ICON_INFORMATION)
         elif sb2 == '':
-            dlg = wx.MessageDialog(s, 'Phone number cannot be kept blank', 'Error', wx.OK|wx.ICON_INFORMATION)
-            dlg.ShowModal()
-            dlg.Destroy()
+            return self.show_error(s, 'Phone number cannot be kept blank', 'Error', wx.OK|wx.ICON_INFORMATION)
         elif x.username_search(str(sb1),0)==1:
-            dlg = wx.MessageDialog(s, 'Username already exists in our database \nKindly select a new username', 'Error', wx.OK|wx.ICON_INFORMATION)
-            dlg.ShowModal()
-            dlg.Destroy()
+            return self.show_error(s, 'Username already exists in our database \nKindly select a new username', 'Error', wx.OK|wx.ICON_INFORMATION)
         elif x.username_search(str(sb2),1)==1:
-            dlg = wx.MessageDialog(s, 'Phone number already registered in our database \nKindly enter another number', 'Error', wx.OK|wx.ICON_INFORMATION)
-            dlg.ShowModal()
-            dlg.Destroy()
+            return self.show_error(s, 'Phone number already registered in our database \nKindly enter another number', 'Error', wx.OK|wx.ICON_INFORMATION)
         else : 
             return 1
 
     def save_new_password_filter(self,s,b):
         #NON BLANK ALIAS CHECKER
         if b == '' :
-            dlg = wx.MessageDialog(s, 'Alias cannot be kept blank\nIt wil help your retrieve your password\nSelect one such that you can remember', 'Error', wx.OK|wx.ICON_INFORMATION)
-            dlg.ShowModal()
-            dlg.Destroy()
+            return self.show_error(s, 'Alias cannot be kept blank\nIt wil help your retrieve your password\nSelect one such that you can remember', 'Error', wx.OK|wx.ICON_INFORMATION)
         return 1
 
 #########################################################################################################################################################################
